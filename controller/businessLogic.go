@@ -2,8 +2,6 @@ package controller
 
 import (
 	U "LoginSystem/until"
-	"html/template"
-	"log"
 	"net/http"
 )
 
@@ -12,16 +10,6 @@ type Page struct {
 	Title    string
 	UserID   interface{}
 	Username interface{}
-}
-
-var templates = template.Must(template.ParseGlob("templates/*.html"))
-
-func renderTemplates(w http.ResponseWriter, tmpl string, p *Page) {
-	err := templates.ExecuteTemplate(w, tmpl+".html", p)
-	if err != nil {
-		http.Error(w, "Oops, Page not found!!", http.StatusInternalServerError)
-		log.Fatal(err)
-	}
 }
 
 func loggedIn(w http.ResponseWriter, url string, r *http.Request) {
@@ -37,9 +25,3 @@ func loggedIn(w http.ResponseWriter, url string, r *http.Request) {
 	}
 }
 
-func notLoggedIn(w http.ResponseWriter, r *http.Request) {
-	id, _ := U.AllSessions(r)
-	if id != nil {
-		http.Redirect(w, r, "/", http.StatusFound)
-	}
-}
