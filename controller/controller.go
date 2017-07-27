@@ -5,13 +5,9 @@ import (
 	M "LoginSystem/model"
 	"encoding/json"
 	"net/http"
-//	"fmt"
 	"log"
-//	"strings"
 	//for check mail 
 	"github.com/badoux/checkmail"
-	// For mysql
-	_ "github.com/go-sql-driver/mysql"
 	//for crpyt
 	"golang.org/x/crypto/bcrypt"
 	"github.com/julienschmidt/httprouter"
