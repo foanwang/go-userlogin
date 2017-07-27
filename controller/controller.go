@@ -2,9 +2,9 @@ package controller
 
 import (
 	U "LoginSystem/until"
-	"net/http"
-	"github.com/julienschmidt/httprouter"
+	M "LoginSystem/model"
 	"encoding/json"
+	"net/http"
 	"fmt"
 	"log"
 	"strings"
@@ -14,8 +14,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	//for crpyt
 	"golang.org/x/crypto/bcrypt"
+	"github.com/julienschmidt/httprouter"
 )
-
 
 // ProfileParamless function
 func ProfileParamless(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -32,35 +32,34 @@ func Logout(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	session.Save(r, w)
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
+
+
 // UserRegister function
 func UserRegister(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	Response := make(map[string]interface{})
-	fmt.Println("Request:"+r)
-	username := strings.TrimSpace(r.PostFormValue("username"))
-	email := strings.TrimSpace(r.PostFormValue("email"))
-	password := strings.TrimSpace(r.PostFormValue("password"))
-	passwordAgain := strings.TrimSpace(r.PostFormValue("password_again"))
-	//check mail 
+	data := M.User{}; 
+    if r.Body == nil {
+       Response["mssg"] = "Some values are missing!"
+    }
+    err := json.NewDecoder(r.Body).Decode(&data)
+    if err != nil {
+	  Response["mssg"] = "Some values are missing!"
+    }
+	username := data.Username
+	email := data.Email
+	password := data.Password
+	
 	mailErr := checkmail.ValidateFormat(email)
+	
+	userCount := M.Checkuserbyusername(username)
+	emailCount:= M.Checkuserbyemail(email)
 
-	db := U.DB()
-
-	var (
-		userCount  int
-		emailCount int
-	)
-
-	db.QueryRow("SELECT COUNT(id) AS userCount FROM users WHERE username=?", username).Scan(&userCount)
-	db.QueryRow("SELECT COUNT(id) AS emailCount FROM users WHERE email=?", email).Scan(&emailCount)
-	fmt.Println("Username:"+username+" email:"+email+" password:"+password+" passwordAgain:"+passwordAgain)
-	if username == "" || email == "" || password == "" || passwordAgain == "" {
+	if username == "" || email == "" || password == "" {
 		Response["mssg"] = "Some values are missing!"
 	} else if len(username) < 4 || len(username) > 32 {
 		Response["mssg"] = "Username should be between 4 and 32"
 	} else if mailErr != nil {
 		Response["mssg"] = "Invalid Format!"
-	} else if password != passwordAgain {
-		Response["mssg"] = "Passwords don't match"
 	} else if userCount > 0 {
 		Response["mssg"] = "Username already exists!"
 	} else if emailCount > 0 {
@@ -71,13 +70,13 @@ func UserRegister(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		_, insErr := db.Exec(
-			"INSERT INTO users(username, email, password) VALUES(?, ?, ?) ",
-			username,
-			email,
-			hash,
-		)
+		_, insErr:=M.InsertUser(username, email, hash)
+//		_, insErr := db.Exec(
+//			"INSERT INTO users(username, email, password) VALUES(?, ?, ?) ",
+//			username,
+//			email,
+//			hash,
+//		)
 		if insErr != nil {
 			log.Fatal(insErr)
 		}
@@ -94,7 +93,6 @@ func UserRegister(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(final)
-
 }
 
 // UserLogin function

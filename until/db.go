@@ -2,11 +2,8 @@ package until
 
 import (
 	"database/sql"
-
 	// it is for mysql
 	_ "github.com/go-sql-driver/mysql"
-//	"log"
-//	"fmt"
 )
 
 // DB function

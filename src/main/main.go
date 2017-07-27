@@ -1,7 +1,7 @@
 package main
 
 import (
-	c "loginsystem/controller"
+	C "loginsystem/controller"
 	"github.com/julienschmidt/httprouter"
 	"github.com/urfave/negroni"
 	"fmt"
@@ -19,7 +19,7 @@ func main(){
 //	controller.GET("/profile", R.ProfileParamless)
 //	controller.GET("/logout", R.Logout)
 //
-	controller.POST("/user/register", c.UserRegister)
+	controller.POST("/user/register", C.UserRegister)
 //	controller.POST("/user/login", R.UserLogin)
 	fmt.Println("login system start...")
 	server := negroni.Classic()
