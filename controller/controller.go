@@ -5,9 +5,9 @@ import (
 	M "LoginSystem/model"
 	"encoding/json"
 	"net/http"
-	"fmt"
+//	"fmt"
 	"log"
-	"strings"
+//	"strings"
 	//for check mail 
 	"github.com/badoux/checkmail"
 	// For mysql
@@ -45,6 +45,7 @@ func UserRegister(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
     if err != nil {
 	  Response["mssg"] = "Some values are missing!"
     }
+    
 	username := data.Username
 	email := data.Email
 	password := data.Password
@@ -70,13 +71,8 @@ func UserRegister(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		//insert
 		_, insErr:=M.InsertUser(username, email, hash)
-//		_, insErr := db.Exec(
-//			"INSERT INTO users(username, email, password) VALUES(?, ?, ?) ",
-//			username,
-//			email,
-//			hash,
-//		)
 		if insErr != nil {
 			log.Fatal(insErr)
 		}
@@ -98,36 +94,32 @@ func UserRegister(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 // UserLogin function
 func UserLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	Response := make(map[string]interface{})
+	data := M.User{}; 
+    if r.Body == nil {
+       Response["mssg"] = "Some values are missing!"
+    }
+    err := json.NewDecoder(r.Body).Decode(&data)
+    if err != nil {
+	  Response["mssg"] = "Some values are missing!"
+    }
+	rusername := data.Username
+	rpassword := data.Password
 
-	rusername := strings.TrimSpace(r.PostFormValue("username"))
-	rpassword := strings.TrimSpace(r.PostFormValue("password"))
-
-	db := U.DB()
-	var (
-		userCount int
-		id        int
-		username  string
-		password  string
-	)
-
-	db.QueryRow("SELECT COUNT(id) AS userCount, id, username, password FROM users WHERE username=?", rusername).Scan(&userCount, &id, &username, &password)
-
-	if rusername == "" || rpassword == "" {
-		Response["mssg"] = "Some values are missing!"
-	} else if userCount == 0 {
+	user:= M.QueryUserByUserName(rusername)
+	if user.Username == ""{
 		Response["mssg"] = "Invalid username!"
-	} else if encErr := bcrypt.CompareHashAndPassword([]byte(password), []byte(rpassword)); encErr != nil {
+	}else if encErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(rpassword)); encErr != nil {
 		Response["mssg"] = "Invalid password!"
 	} else {
 
 		session := U.GetSession(r)
-		session.Values["id"] = id
-		session.Values["username"] = username
+		session.Values["id"] = user.Id
+		session.Values["username"] = user.Username
 		session.Save(r, w)
 
 		Response["success"] = true
 		Response["mssg"] = "You are now logged in"
-		Response["user"] = id
+		Response["user"] = user.Id
 
 	}
 
@@ -135,8 +127,6 @@ func UserLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println(userCount)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(final)
 

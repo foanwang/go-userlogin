@@ -20,7 +20,7 @@ func main(){
 //	controller.GET("/logout", R.Logout)
 //
 	controller.POST("/user/register", C.UserRegister)
-//	controller.POST("/user/login", R.UserLogin)
+	controller.POST("/user/login", C.UserLogin)
 	fmt.Println("login system start...")
 	server := negroni.Classic()
 	server.UseHandler(controller)

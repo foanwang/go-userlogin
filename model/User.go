@@ -6,6 +6,7 @@ import (
 )
 
 type User struct{
+	Id int
 	Username string	 
 	Email string		
 	Password string	
@@ -30,9 +31,9 @@ func Checkuserbyemail(email string)(int64){
 func QueryUserByUserName(username string)(User) {
 	db := u.DB()
 	result := User{}
-	rows, _  :=db.Query("SELECT COUNT(id) AS userCount, id, username, password FROM users WHERE username=?", username)
+	rows, _  :=db.Query("SELECT id, username, password FROM users WHERE username=?", username)
 	for rows.Next(){
-        if err := rows.Scan(&result); err != nil {
+        if err := rows.Scan(&result.Id, &result.Username, &result.Password); err != nil {
             log.Fatal(err)
         }
         //fmt.Printf("name:%s ,id:is %d\n", name, id)
