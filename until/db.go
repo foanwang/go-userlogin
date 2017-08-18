@@ -8,7 +8,9 @@ import (
 
 // DB function
 func DB() *sql.DB {
-	db, _ := sql.Open("mysql", "root:123456@/sample")
+	var path string;
+	path = GetElement("dbuser")+":"+GetElement("password")+"@tcp("+GetElement("host")+")/"+GetElement("dbname")
+	db, _ := sql.Open("mysql", path)
 	err := db.Ping()
 	if err != nil {
 		panic(err)

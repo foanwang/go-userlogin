@@ -1,0 +1,5 @@
+port: 8080
+dbuser: root
+host: 127.0.0.1:3306
+password: 123456
+dbname: sample
