@@ -1,16 +1,14 @@
 package controller
 
 import (
-	U "LoginSystem/until"
-	M "LoginSystem/model"
 	"encoding/json"
-	"net/http"
+	M "go-userlogin/model"
+	U "go-userlogin/until"
 	"log"
-	//for check mail 
-	"github.com/badoux/checkmail"
-	//for crpyt
-	"golang.org/x/crypto/bcrypt"
+	"net/http"
+	"github.com/badoux/checkmail" ////for check mail
 	"github.com/julienschmidt/httprouter"
+	"golang.org/x/crypto/bcrypt" //for crpyt
 )
 
 // ProfileParamless function

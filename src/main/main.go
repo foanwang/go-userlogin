@@ -1,22 +1,22 @@
 package main
 
 import (
-	C "loginsystem/controller"
-	u	"LoginSystem/until"
+	"fmt"
+	c "go-userlogin/controller"
+	u "go-userlogin/until"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/urfave/negroni"
-	"fmt"
-	 	
 )
 
-func main(){
+func main() {
 	controller := httprouter.New()
-	controller.POST("/user/register", C.UserRegister)
-	controller.POST("/user/login", C.UserLogin)
-	
-	port := u.GetElement("port");
+	controller.POST("/user/register", c.UserRegister)
+	controller.POST("/user/login", c.UserLogin)
+
+	port := u.GetElement("port")
 	fmt.Println("login system start...")
 	server := negroni.Classic()
 	server.UseHandler(controller)
-	server.Run(":"+port)
+	server.Run(":" + port)
 }

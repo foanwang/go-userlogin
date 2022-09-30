@@ -1,7 +1,7 @@
 package controller
 
 import (
-	U "LoginSystem/until"
+	U "go-userlogin/until"
 	"net/http"
 )
 
